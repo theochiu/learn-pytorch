@@ -38,7 +38,7 @@ def imshow(image):
 	nping = image.numpy()
 	plt.imshow(np.transpose(nping, (1, 2, 0)))
 	plt.show()
-	plt.savefig('figure.png') 
+	# plt.savefig('figure.png') 
 
 
 def image_main():
@@ -145,5 +145,6 @@ def test_model():
 			classes[i], 100 * class_correct[i] / class_total[i]))
 
 if __name__ == '__main__':
-	test_model()
+	# test_model()
 	# train()
+	image_main()
