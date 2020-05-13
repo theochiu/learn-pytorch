@@ -128,6 +128,8 @@ def test_model():
 			images, labels = data
 			outputs = net(images)
 			_, predicted = torch.max(outputs, 1)
+			print(predicted)
+			quit()
 			total += labels.size(0)
 			correct += (predicted == labels).sum().item()
 			c = (predicted == labels).squeeze()
@@ -145,6 +147,6 @@ def test_model():
 			classes[i], 100 * class_correct[i] / class_total[i]))
 
 if __name__ == '__main__':
-	# test_model()
+	test_model()
 	# train()
-	image_main()
+	# image_main()
