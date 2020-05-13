@@ -55,6 +55,7 @@ class DigitNet(nn.Module):
 			nn.Linear(128, 64),
 			nn.SELU(),
 			nn.Linear(64, 10),
+			# nn.Softmax(dim=1)
 		)
 
 	def forward(self, x):
@@ -63,7 +64,36 @@ class DigitNet(nn.Module):
 		x = self.network(x)
 		return x
 
-net = DigitNet()
+# net = DigitNet()
+
+class DigitCNN(nn.Module):
+	def __init__(self):
+		super(DigitCNN, self).__init__()
+
+		self.convlayers = nn.Sequential(
+			nn.Conv2d(1, 64, 9),
+			nn.MaxPool2d(2, 2),
+			nn.SELU(),
+			nn.Conv2d(64, 128, 3),
+			nn.MaxPool2d(2, 2),
+			nn.SELU(),
+		)
+
+		self.denselayers = nn.Sequential(
+			nn.Linear(2048, 128),
+			nn.SELU(),
+			nn.Linear(128, 10)
+		)
+
+	def forward(self, x):
+		x = self.convlayers(x)
+		x = x.view(x.size(0), -1)	# flatten
+		# x = x.view(-1, 16 * 3 * 3)
+		x = self.denselayers(x)
+
+		return x
+
+net = DigitCNN()
 
 def train():
 	criterion = nn.CrossEntropyLoss()
@@ -111,7 +141,7 @@ def test_model():
 
 if __name__ == '__main__':
 	# image_main()
-	train()
+	# train()
 	test_model()
 	# x,_ = trainset[0]
 	# plt.imshow(x.numpy()[0], cmap="gray")
