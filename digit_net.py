@@ -16,9 +16,9 @@ PATH = "./digitnet.pth"
 transform = transforms.Compose(
 	[transforms.ToTensor()])
 
-trainset = torchvision.datasets.MNIST(root="./mnist-data", train=True, download=True,
+trainset = torchvision.datasets.MNIST(root="./data", train=True, download=True,
 	transform=transform)
-testset = torchvision.datasets.MNIST(root="./mnist-data", train=False, download=True,
+testset = torchvision.datasets.MNIST(root="./data", train=False, download=True,
 	transform=transform)
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True, num_workers=2)
@@ -67,9 +67,10 @@ net = DigitNet()
 
 def train():
 	criterion = nn.CrossEntropyLoss()
-	optimizer = optim.SGD(net.parameters(), lr=0.01, momentum=0.9, nesterov=True)
+	optimizer = optim.SGD(net.parameters(), lr=0.01, momentum=0.95, nesterov=True)
+	# optimizer = optim.Adam(net.parameters(), lr=0.01)
 
-	for epoch in range(5):
+	for epoch in range(10):
 		running_loss = 0.0
 		for i, data in enumerate(trainloader, 0):
 			inputs, labels = data
