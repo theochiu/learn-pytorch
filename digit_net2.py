@@ -16,7 +16,7 @@ import sys
 RESUME = False
 
 # PATH = "./digitnet.pth"
-PATH = "./fashion-model-cnn3.pth"
+PATH = "./fashion-model-cnn4.pth"
 # PATH = "./fashion-model.pth"
 
 transform = transforms.Compose(
@@ -80,43 +80,46 @@ class DigitCNN(nn.Module):
 		super(DigitCNN, self).__init__()
 
 		self.convlayers = nn.Sequential(
-			nn.Conv2d(1, 64, 5, padding=2),		# in_chan, out_chan, kernel
+			nn.Conv2d(1, 16, 3, padding=1),		# in_chan, out_chan, kernel
 			nn.SELU(),
-			nn.Conv2d(64, 64, 5, padding=2),
+			nn.Conv2d(16, 16, 3, padding=1),
 			nn.SELU(),
-			# 28 x 28 x 64
+			# 28 x 28 x 16
+			nn.Dropout(),
 			nn.MaxPool2d(2, 2),
-			# 14 x 14 x 64
+			# 14 x 14 x 16
 
-			nn.Conv2d(64, 128, 5, padding=2),
+
+			nn.Conv2d(16, 32, 3, padding=1),
 			nn.SELU(),
-			# 14 x 14 x 128
-			nn.Conv2d(128, 128, 5, padding=2),
+			# 14 x 14 x 32
+			nn.Conv2d(32, 32, 3, padding=1),
 			nn.SELU(),
+			nn.Dropout(),
 			nn.MaxPool2d(2, 2),
-			# 7 x 7 x 128
+			# 7 x 7 x 32
 
-			nn.Conv2d(128, 256, 3, padding=1),
+
+
+			nn.Conv2d(32, 64, 3, padding=1),
 			nn.SELU(),
-			# 7 x 7 x 256
+			# 7 x 7 x 64
 
-			nn.Conv2d(256, 256, 3, padding=1),
+			nn.Conv2d(64, 64, 3, padding=1),
 			nn.SELU(),
-			# 7 x 7 x 256
+			# 7 x 7 x 64
 
+			nn.Dropout(),
 		)
 
-		self.gap = nn.Sequential(
-			nn.AdaptiveAvgPool2d((1, 128)),
-			nn.Linear(128, 10)
-		)
+
 
 		self.denselayers = nn.Sequential(
-			nn.Linear(256*7*7, 512),
+			nn.Linear(64*7*7, 128),
 			nn.SELU(),
-			nn.Linear(512, 256),
+			nn.Linear(128, 64),
 			nn.SELU(),
-			nn.Linear(256, 10),
+			nn.Linear(64, 10),
 		)
 
 	def forward(self, x):
@@ -128,11 +131,11 @@ class DigitCNN(nn.Module):
 
 		return x
 
-# net = DigitNet()
-net = DigitCNN()
+net = DigitNet()
+# net = DigitCNN()
 
 def train():
-	lr = 0.01
+	lr = 0.001
 	criterion = nn.CrossEntropyLoss()
 	optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.95, nesterov=True)
 	# optimizer = optim.Adagrad(net.parameters())
@@ -143,7 +146,7 @@ def train():
 	old_epoch = 0
 	old_loss = float("inf")
 
-	trigger_anneal = False				# i want 2 values to show plateau instead of just one previous one
+	trigger_anneal = 0				# i want 2 values to show plateau instead of just one previous one
 
 	if RESUME:
 		checkpoint = torch.load(PATH)
@@ -176,24 +179,22 @@ def train():
 				print('[%d, %5d] loss: %.5f' %
 						(epoch + 1, i + 1, running_loss / 2000))
 
-				if old_loss / 1.02 < running_loss and lr > 0.00001:
-					if trigger_anneal:
-						lr /= 2
-						print("anneal learning rate")
-						print("lr: {}".format(lr))
-						optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.99, nesterov=True)
-					else:
-						trigger_anneal = True
+				# if old_loss / 1.02 < running_loss :#and lr > 0.00001:
+				# 	if trigger_anneal > 1:
+				# 		trigger_anneal = 0
+				# 		lr /= 1.4
+				# 		print("anneal learning rate")
+				# 		print("lr: {}".format(lr))
+				# 		optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.99, nesterov=True)
+				# 	else:
+				# 		trigger_anneal += 1
 
-				# elif old_loss / 1.02 < running_loss:
-				# 	lr = 0.001
-				# 	print("reset lr to 0.001")
-				# 	optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.99, nesterov=True)
+			
 
-				else:
-					trigger_anneal = False
+				# else:
+				# 	trigger_anneal = 0
 
-				old_loss = running_loss
+				# old_loss = running_loss
 				running_loss = 0.0
 
 		# save model per epoch
