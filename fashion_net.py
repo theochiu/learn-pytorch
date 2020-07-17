@@ -173,7 +173,7 @@ def train():
 			running_loss += loss.item()
 
 			if i%100==99:
-				print('[%d, %5d] loss: %.5f' %
+				print('[%d, %5d] loss: %.7f' %
 						(epoch + 1, i + 1, running_loss / 2000))
 				running_loss = 0.0
 
